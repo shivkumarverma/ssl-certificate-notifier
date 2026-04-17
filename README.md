@@ -102,7 +102,7 @@ An **Azure Automation Python 3 Runbook** executes on a daily schedule to:
 | Application Gateways | Target resources — SSL certificate data is read from each gateway |
 | Azure Communication Services | Delivers the HTML email and Excel attachment to recipients |
 
-![flow diagam](docs\images\hld-architecture.png)
+![Arch diagram](docs\images\hld-architecture.png)
 
 ### Architecture Diagram
 
