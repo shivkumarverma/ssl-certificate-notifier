@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Azure Application Gateway SSL Certificate Expiry Notification</title>
+  <style>
+    /* ── PRINT COLOR PRESERVATION (critical) ── */
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+    }
+
+    /* ── PAGE SETUP ── */
+    @page {
+      size: A4;
+      margin: 0;
+    }
+    @page :first {
+      margin: 0;
+    }
+
+    /* ── BODY ── */
+    body {
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      font-size: 10.5pt;
+      color: #1a1a2e;
+      background: #ffffff;
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════
+       COVER PAGE
+    ═══════════════════════════════════ */
+    .cover {
+      width: 210mm;
+      height: 297mm;
+      background-color: #0078d4;
+      background-image: linear-gradient(150deg, #004578 0%, #0078d4 50%, #106ebe 100%);
+      color: #ffffff;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* decorative circles */
+    .cover::before {
+      content: '';
+      position: absolute;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      top: -80px; right: -80px;
+    }
+    .cover::after {
+      content: '';
+      position: absolute;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      bottom: 60px; left: -60px;
+    }
+
+    .cover-inner {
+      padding: 70px 60px 50px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cover-org {
+      font-size: 9pt;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 50px;
+    }
+
+    .cover-icon {
+      width: 56px; height: 6px;
+      background: #50e6ff;
+      border-radius: 3px;
+      margin-bottom: 22px;
+    }
+
+    .cover h1 {
+      font-size: 30pt;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      color: #ffffff;
+    }
+    .cover h1 em {
+      font-style: normal;
+      color: #50e6ff;
+    }
+
+    .cover-subtitle {
+      font-size: 12pt;
+      color: rgba(255,255,255,0.78);
+      font-style: italic;
+      margin-bottom: 52px;
+    }
+
+    .cover-team-label {
+      font-size: 8pt;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 14px;
+    }
+
+    /* cover team table */
+    .cover-table {
+      width: 100%;
+      max-width: 500px;
+      border-collapse: collapse;
+    }
+    .cover-table th {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.7);
+      font-size: 8pt;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 7px 12px;
+      text-align: left;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .cover-table td {
+      padding: 8px 12px;
+      font-size: 9.5pt;
+      color: rgba(255,255,255,0.88);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .cover-table tr:nth-child(even) td {
+      background: rgba(255,255,255,0.07);
+    }
+    .cover-table td strong { color: #ffffff; }
+    .cover-table td.name {
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 10pt;
+      letter-spacing: 0.3px;
+      background-color: rgba(80,230,255,0.15);
+    }
+
+    .cover-footer {
+      margin-top: auto;
+      border-top: 1px solid rgba(255,255,255,0.18);
+      padding-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8pt;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 1px;
+    }
+    .cover-footer-badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      padding: 3px 10px;
+      font-size: 7.5pt;
+      letter-spacing: 1.5px;
+    }
+
+    /* ═══════════════════════════════════
+       TOC PAGE
+    ═══════════════════════════════════ */
+    .toc-page {
+      padding: 58px 60px;
+      page-break-after: always;
+    }
+    .toc-title {
+      font-size: 20pt;
+      font-weight: 700;
+      color: #0078d4;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #0078d4;
+      margin-bottom: 30px;
+    }
+    .toc-list { list-style: none; }
+    .toc-list li {
+      display: flex;
+      align-items: baseline;
+      padding: 6px 0;
+      border-bottom: 1px dotted #c5cae9;
+      font-size: 10.5pt;
+    }
+    .toc-num {
+      color: #0078d4;
+      font-weight: 700;
+      min-width: 36px;
+      font-size: 10pt;
+    }
+    .toc-list a {
+      color: #1a1a2e;
+      text-decoration: none;
+      flex: 1;
+    }
+
+    /* ═══════════════════════════════════
+       CONTENT WRAPPER
+    ═══════════════════════════════════ */
+    .content {
+      padding: 0 60px 60px;
+      max-width: 210mm;
+      margin: 0 auto;
+    }
+
+    /* ── Section header ── */
+    .section { padding-top: 44px; }
+
+    .sec-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e3f2fd;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+    .sec-num {
+      background-color: #0078d4;
+      color: #ffffff;
+      font-size: 12pt;
+      font-weight: 700;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sec-header h2 {
+      font-size: 15pt;
+      font-weight: 700;
+      color: #0078d4;
+    }
+
+    h3 {
+      font-size: 11pt;
+      color: #004578;
+      font-weight: 600;
+      margin: 18px 0 8px;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+    p { margin-bottom: 10px; }
+    ul, ol { margin: 6px 0 12px 0; padding-left: 22px; }
+    li { margin-bottom: 4px; }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      font-size: 9.5pt;
+    }
+    thead th {
+      background-color: #0078d4;
+      color: #ffffff;
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 9pt;
+    }
+    tbody td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e8eaf6;
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) td {
+      background-color: #f0f6ff;
+    }
+
+    /* ── Callout boxes ── */
+    .callout {
+      border-left: 4px solid #0078d4;
+      background-color: #e6f3fb;
+      padding: 11px 15px;
+      border-radius: 0 6px 6px 0;
+      margin: 12px 0;
+      font-size: 10pt;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .callout.green {
+      border-left-color: #2e7d32;
+      background-color: #e8f5e9;
+    }
+    .callout.amber {
+      border-left-color: #bf360c;
+      background-color: #fbe9e7;
+    }
+
+    /* ── Code blocks ── */
+    pre {
+      background-color: #1e2440;
+      color: #e8eaf6;
+      padding: 13px 16px;
+      border-radius: 6px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 8.5pt;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 10px 0;
+      line-height: 1.55;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    code {
+      background-color: #e6f3fb;
+      color: #004578;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 8.5pt;
+    }
+    pre code { background: none; color: inherit; padding: 0; }
+
+    /* ── Outcome badges ── */
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .badge {
+      background-color: #e6f3fb;
+      border: 2px solid #0078d4;
+      color: #004578;
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 9.5pt;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .badge-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background-color: #0078d4;
+      display: inline-block;
+    }
+
+    /* ── Status colour badges ── */
+    .status-expired  { background:#c62828; color:#fff; padding:2px 8px; border-radius:4px; font-size:8.5pt; font-weight:700; }
+    .status-critical { background:#e64a19; color:#fff; padding:2px 8px; border-radius:4px; font-size:8.5pt; font-weight:700; }
+    .status-warning  { background:#f57c00; color:#fff; padding:2px 8px; border-radius:4px; font-size:8.5pt; font-weight:700; }
+    .status-ok       { background:#2e7d32; color:#fff; padding:2px 8px; border-radius:4px; font-size:8.5pt; font-weight:700; }
+    .status-unknown  { background:#757575; color:#fff; padding:2px 8px; border-radius:4px; font-size:8.5pt; font-weight:700; }
+
+    /* ── Flow diagram ── */
+    .flow {
+      margin: 14px 0;
+      max-width: 460px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .flow-step {
+      background-color: #e6f3fb;
+      border: 2px solid #0078d4;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 9.5pt;
+      font-weight: 600;
+      color: #004578;
+      text-align: center;
+    }
+    .flow-arrow {
+      text-align: center;
+      color: #0078d4;
+      font-size: 18pt;
+      line-height: 1;
+      padding: 1px 0;
+    }
+
+    /* ── Final outcome card ── */
+    .outcome-card {
+      background-color: #0078d4;
+      background-image: linear-gradient(135deg, #004578 0%, #106ebe 100%);
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 26px 30px;
+      margin: 20px 0;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .outcome-card h3 {
+      color: #50e6ff;
+      margin-top: 0;
+      font-size: 11.5pt;
+      margin-bottom: 14px;
+    }
+    .outcome-card li { color: rgba(255,255,255,0.92); margin-bottom: 8px; }
+    .outcome-card strong { color: #ffffff; }
+
+    /* ── Page divider ── */
+    .pg-break { page-break-after: always; break-after: always; }
+
+    /* ── Document footer ── */
+    .doc-footer {
+      text-align: center;
+      color: #9e9e9e;
+      font-size: 8.5pt;
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     COVER PAGE
+════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-org">Movate &nbsp;&nbsp;|&nbsp;&nbsp; DevOps Engineering &nbsp;&nbsp;|&nbsp;&nbsp; Cloud Operations</div>
+    <div class="cover-icon"></div>
+    <h1>Azure Application Gateway<br/><em>SSL Certificate Expiry</em><br/>Notification</h1>
+    <div class="cover-subtitle">Azure Automation Runbook-Based SSL Certificate Health Monitoring</div>
+    <div class="cover-team-label">Developed by the DevOps Team @ Movate</div>
+    <table class="cover-table">
+      <thead>
+        <tr><th>Role</th><th>Name</th><th>Contact</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Team Lead</strong></td><td class="name">Vignesh Nagachalavelavan</td><td>Vignesh.Nagachalavelavan01@movate.com</td></tr>
+        <tr><td>Engineer</td><td class="name">Shiv Kumar Verma</td><td>ShivKumar.Verma@movate.com</td></tr>
+        <tr><td>DevOps Engineers</td><td class="name">Movate DevOps Team</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <div class="cover-footer">
+      <span>Azure Application Gateway SSL Certificate Expiry Notification</span>
+      <span class="cover-footer-badge">MOVATE &nbsp;|&nbsp; 2026</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TABLE OF CONTENTS
+════════════════════════════════════════════ -->
+<div class="toc-page">
+  <div class="toc-title">Table of Contents</div>
+  <ol class="toc-list">
+    <li><span class="toc-num">1.</span><a href="#s1">Executive Summary</a></li>
+    <li><span class="toc-num">2.</span><a href="#s2">Business Problem</a></li>
+    <li><span class="toc-num">3.</span><a href="#s3">Solution Overview</a></li>
+    <li><span class="toc-num">4.</span><a href="#s4">High-Level Architecture (HLD)</a></li>
+    <li><span class="toc-num">5.</span><a href="#s5">Low-Level Design (LLD)</a></li>
+    <li><span class="toc-num">6.</span><a href="#s6">Key Technical Highlights</a></li>
+    <li><span class="toc-num">7.</span><a href="#s7">Certificate Status Classification</a></li>
+    <li><span class="toc-num">8.</span><a href="#s8">Technology Stack</a></li>
+    <li><span class="toc-num">9.</span><a href="#s9">Code Structure</a></li>
+    <li><span class="toc-num">10.</span><a href="#s10">Configuration</a></li>
+    <li><span class="toc-num">11.</span><a href="#s11">Deployment</a></li>
+    <li><span class="toc-num">12.</span><a href="#s12">IAM &amp; Security Model</a></li>
+    <li><span class="toc-num">13.</span><a href="#s13">Email &amp; Excel Output</a></li>
+    <li><span class="toc-num">14.</span><a href="#s14">Advantages</a></li>
+    <li><span class="toc-num">15.</span><a href="#s15">Limitations</a></li>
+    <li><span class="toc-num">16.</span><a href="#s16">Use Cases</a></li>
+    <li><span class="toc-num">17.</span><a href="#s17">Operational Runbook</a></li>
+    <li><span class="toc-num">18.</span><a href="#s18">Final Outcome</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CONTENT
+════════════════════════════════════════════ -->
+<div class="content">
+
+  <!-- 1. EXECUTIVE SUMMARY -->
+  <div class="section" id="s1">
+    <div class="sec-header">
+      <div class="sec-num">1</div>
+      <h2>Executive Summary</h2>
+    </div>
+    <p>This solution is an <strong>Azure Automation Python 3 Runbook</strong> that proactively monitors SSL/TLS certificate expiry across all Azure Application Gateways in one or more subscriptions. It runs on a daily schedule, scans every certificate attached to a live TLS listener, and delivers a colour-coded health report — an HTML email plus a full Excel attachment — via <strong>Azure Communication Services (ACS) Email</strong>.</p>
+    <p>The runbook is entirely <strong>read-only</strong>: it never creates, modifies, or deletes any Azure resource.</p>
+    <h3>Key Outcomes</h3>
+    <div class="badge-row">
+      <div class="badge"><span class="badge-dot"></span>Proactive</div>
+      <div class="badge"><span class="badge-dot"></span>Multi-Subscription</div>
+      <div class="badge"><span class="badge-dot"></span>Read-Only</div>
+      <div class="badge"><span class="badge-dot"></span>Auditable</div>
+    </div>
+    <table>
+      <thead><tr><th>Outcome</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Proactive</strong></td><td>Catches certificates before they expire — not after outages occur</td></tr>
+        <tr><td><strong>Multi-Subscription</strong></td><td>Single runbook covers all Application Gateways across the entire Azure estate</td></tr>
+        <tr><td><strong>Read-Only</strong></td><td>No risk of accidental resource modification; safe to run with Reader-only RBAC</td></tr>
+        <tr><td><strong>Auditable</strong></td><td>Full Excel report delivered after every run for compliance and governance records</td></tr>
+      </tbody>
+    </table>
+    <div class="callout green">
+      <strong>Zero-touch monitoring:</strong> once deployed, the runbook runs daily on a schedule with no manual intervention required.
+    </div>
+  </div>
+
+  <!-- 2. BUSINESS PROBLEM -->
+  <div class="section" id="s2">
+    <div class="sec-header">
+      <div class="sec-num">2</div>
+      <h2>Business Problem</h2>
+    </div>
+    <table>
+      <thead><tr><th>Challenge</th><th>Impact</th></tr></thead>
+      <tbody>
+        <tr><td>Manual certificate tracking</td><td>Human error and missed expiry deadlines across multiple gateways</td></tr>
+        <tr><td>No centralised visibility</td><td>Poor governance across multiple subscriptions and Application Gateways</td></tr>
+        <tr><td>Expired certificates</td><td>Application outages, browser security warnings, broken HTTPS endpoints</td></tr>
+        <tr><td>Reactive monitoring</td><td>Certificates discovered as expired only after end-user impact has occurred</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. SOLUTION OVERVIEW -->
+  <div class="section" id="s3">
+    <div class="sec-header">
+      <div class="sec-num">3</div>
+      <h2>Solution Overview</h2>
+    </div>
+    <p>An <strong>Azure Automation Python 3 Runbook</strong> executes on a daily schedule to perform the full certificate health check automatically:</p>
+    <ol>
+      <li><strong>Authenticate</strong> to Azure using a Service Principal (<code>ClientSecretCredential</code>)</li>
+      <li><strong>Discover</strong> every Application Gateway across all configured subscriptions</li>
+      <li><strong>Fetch</strong> full gateway details including <code>publicCertData</code> for each SSL certificate</li>
+      <li><strong>Parse</strong> certificate expiry dates from PKCS#7/DER/PEM encoded certificate data</li>
+      <li><strong>Classify</strong> each certificate: Expired / Critical / Warning / OK / Unknown</li>
+      <li><strong>Report</strong> results via a colour-coded HTML email and a full Excel attachment</li>
+    </ol>
+    <h3>Certificate Status Thresholds</h3>
+    <table>
+      <thead><tr><th>Status</th><th>Condition</th></tr></thead>
+      <tbody>
+        <tr><td><span class="status-expired">Expired</span></td><td>Days remaining &lt; 0 — certificate has already expired</td></tr>
+        <tr><td><span class="status-critical">Critical</span></td><td>0 – 7 days remaining — requires immediate action</td></tr>
+        <tr><td><span class="status-warning">Warning</span></td><td>8 – 14 days remaining (configurable via <code>AG_ALERT_DAYS</code>)</td></tr>
+        <tr><td><span class="status-ok">OK</span></td><td>&gt; 14 days remaining — certificate is healthy</td></tr>
+        <tr><td><span class="status-unknown">Unknown</span></td><td>Expiry could not be parsed (e.g. Key Vault-backed certificates)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4. HLD -->
+  <div class="section" id="s4" style="page-break-before:always;break-before:always;">
+    <div class="sec-header">
+      <div class="sec-num">4</div>
+      <h2>High-Level Architecture (HLD)</h2>
+    </div>
+    <figure style="margin:14px 0;page-break-inside:avoid;break-inside:avoid;">
+      <img src="images\hld-architecture.png" alt="Sample Email Report" class="doc-img" style="margin:0;width:100%;display:block;margin-left:auto;margin-right:auto;"/>
+      <figcaption style="text-align:center;font-size:8.5pt;color:#555;margin-top:5px;font-style:italic;">Figure 1 — Sample HTML Email Report: colour-coded status table with metrics summary card</figcaption>
+    </figure>
+    <h3>Components</h3>
+    <table>
+      <thead><tr><th>Component</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Azure Automation Account</strong></td><td>Hosts and schedules the Python 3 runbook</td></tr>
+        <tr><td><strong>Azure Automation Schedule</strong></td><td>Triggers the runbook daily (e.g. 06:00 UTC)</td></tr>
+        <tr><td><strong>Service Principal</strong></td><td>Identity used by the runbook to read Application Gateway resources (Reader role)</td></tr>
+        <tr><td><strong>Application Gateways</strong></td><td>Target resources — SSL certificate data is read from each gateway via Azure API</td></tr>
+        <tr><td><strong>Azure Communication Services</strong></td><td>Delivers the HTML email and Excel attachment to the recipient list</td></tr>
+      </tbody>
+    </table>
+    <h3>Architecture Diagram</h3>
+    <pre>┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Azure Subscription(s)                          │
+│                                                                             │
+│  ┌──────────────────────────┐    ┌──────────────────────────────────────┐  │
+│  │  Azure Automation Account │    │      Application Gateways            │  │
+│  │  ┌─────────────────────┐ │    │  ┌────────────┐  ┌────────────────┐  │  │
+│  │  │  Python 3 Runbook   │─┼────┼─►│  Gateway 1 │  │   Gateway N    │  │  │
+│  │  │  (main.py)          │ │    │  │  SSL Certs │  │   SSL Certs    │  │  │
+│  │  └─────────────────────┘ │    │  └────────────┘  └────────────────┘  │  │
+│  │  ┌─────────────────────┐ │    └──────────────────────────────────────┘  │
+│  │  │  Schedule (daily)   │ │                                               │
+│  │  └─────────────────────┘ │    ┌──────────────────────────────────────┐  │
+│  │  ┌─────────────────────┐ │    │  Azure Communication Services (ACS)  │  │
+│  │  │  Variables / Creds  │ │    │  Email                               │  │
+│  │  │  - AzureSPCredential│─┼────┼─►  Send HTML + Excel to recipients   │  │
+│  │  │  - ACS_CONNECTION.. │ │    └──────────────────────────────────────┘  │
+│  │  └─────────────────────┘ │                                               │
+│  └──────────────────────────┘                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Authentication Flow:
+  Automation Account → ClientSecretCredential (Service Principal)
+                    → Azure RBAC: Reader on each subscription</pre>
+  </div>
+
+  <!-- 5. LLD -->
+  <div class="section" id="s5">
+    <div class="sec-header">
+      <div class="sec-num">5</div>
+      <h2>Low-Level Design (LLD)</h2>
+    </div>
+    <h3>Execution Flow</h3>
+    <div class="flow">
+      <div class="flow-step">Trigger — Azure Automation Schedule (daily)</div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step">Phase 1 — Authenticate via Service Principal</div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step">Phase 2 — Discover &amp; Scan Application Gateways</div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step">Phase 3 — Parse &amp; Classify Certificates</div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step">Phase 4 — Build Excel Report &amp; HTML Email</div>
+      <div class="flow-arrow">&#8595;</div>
+      <div class="flow-step">Phase 5 — Send via Azure Communication Services</div>
+    </div>
+    <h3>Detailed Phase Breakdown</h3>
+    <table>
+      <thead><tr><th>Phase</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Authenticate</strong></td><td>Reads <code>AzureSPCredential</code> from Automation Account; builds <code>ClientSecretCredential</code>; instantiates <code>NetworkManagementClient</code> per subscription</td></tr>
+        <tr><td><strong>Discover &amp; Scan</strong></td><td>Calls <code>list_all()</code> to enumerate all Application Gateways; calls <code>get()</code> per gateway for full <code>publicCertData</code>; filters to certificates attached to active TLS listeners</td></tr>
+        <tr><td><strong>Parse &amp; Classify</strong></td><td>Attempts 4-stage fallback decode: PKCS#7 → bare DER → PEM-in-base64 → raw PEM; classifies each cert by days remaining; marks Unknown if expiry cannot be parsed</td></tr>
+        <tr><td><strong>Build Reports</strong></td><td>Builds colour-coded Excel workbook sorted by days remaining; builds HTML email with metrics card and per-status top-5 tables</td></tr>
+        <tr><td><strong>Send</strong></td><td>Sends HTML email + Excel attachment via ACS Email; <code>DRY_RUN=true</code> writes to disk for local testing</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <strong>4-stage certificate parsing:</strong> Azure Application Gateways return certificate data in multiple formats depending on source and version. The 4-stage fallback chain (PKCS#7 → DER → PEM-in-base64 → raw PEM) ensures maximum compatibility across all gateway configurations.
+    </div>
+  </div>
+
+  <!-- 6. KEY TECHNICAL HIGHLIGHTS -->
+  <div class="section" id="s6" style="page-break-before:always;break-before:always;">
+    <div class="sec-header">
+      <div class="sec-num">6</div>
+      <h2>Key Technical Highlights</h2>
+    </div>
+    <h3>Resilient Certificate Parsing</h3>
+    <ul>
+      <li>Four-stage fallback decode chain handles every certificate format Azure may return</li>
+      <li>PKCS#7 container → bare DER → PEM-in-base64 → raw PEM string</li>
+      <li>Unknown status clearly flagged for Key Vault-backed certificates where <code>publicCertData</code> is not exposed</li>
+    </ul>
+    <h3>Listener-Aware Scanning</h3>
+    <ul>
+      <li>Only certificates attached to active TLS listeners are reported</li>
+      <li>Orphaned / unused certificates are intentionally skipped to reduce noise in reports</li>
+    </ul>
+    <h3>Read-Only Safety</h3>
+    <ul>
+      <li>Zero write operations against any Azure resource</li>
+      <li>Safe to run with minimal RBAC permissions — <code>Reader</code> role only</li>
+      <li><code>DRY_RUN=true</code> mode writes output to disk without sending any email</li>
+    </ul>
+    <h3>Dual Output Format</h3>
+    <ul>
+      <li><strong>HTML email</strong> — at-a-glance metrics card with colour-coded per-status tables</li>
+      <li><strong>Excel attachment</strong> — full 13-column report with auto-filter and row-level colour coding</li>
+    </ul>
+    <h3>Configuration-Driven</h3>
+    <ul>
+      <li>All parameters stored in Automation Account variables — no redeployment needed to update config</li>
+      <li>Warning threshold (<code>AG_ALERT_DAYS</code>), subscription list, and recipient list are all runtime-configurable</li>
+    </ul>
+  </div>
+
+  <!-- 7. CERTIFICATE STATUS CLASSIFICATION -->
+  <div class="section" id="s7">
+    <div class="sec-header">
+      <div class="sec-num">7</div>
+      <h2>Certificate Status Classification</h2>
+    </div>
+    <table>
+      <thead><tr><th>Status</th><th>Days Remaining</th><th>Row Colour</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><span class="status-expired">Expired</span></td><td>&lt; 0</td><td>Dark Red</td><td>Certificate has already expired — immediate replacement required</td></tr>
+        <tr><td><span class="status-critical">Critical</span></td><td>0 – 7</td><td>Orange-Red</td><td>Expiry imminent — escalate and act immediately</td></tr>
+        <tr><td><span class="status-warning">Warning</span></td><td>8 – 14</td><td>Amber</td><td>Action required within the warning window (configurable)</td></tr>
+        <tr><td><span class="status-ok">OK</span></td><td>&gt; 14</td><td>Green</td><td>Certificate is healthy — no action required</td></tr>
+        <tr><td><span class="status-unknown">Unknown</span></td><td>N/A</td><td>Grey</td><td>Expiry cannot be parsed — typically Key Vault-backed certificates</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      The Warning threshold is configurable via the <code>AG_ALERT_DAYS</code> Automation variable (default: <code>14</code>). Adjust this value to match your organisation's certificate renewal lead time without redeploying the runbook.
+    </div>
+  </div>
+
+  <!-- 8. TECHNOLOGY STACK -->
+  <div class="section" id="s8" style="page-break-before:always;break-before:always;">
+    <div class="sec-header">
+      <div class="sec-num">8</div>
+      <h2>Technology Stack</h2>
+    </div>
+    <table>
+      <thead><tr><th>Layer</th><th>Technology</th></tr></thead>
+      <tbody>
+        <tr><td>Compute</td><td>Azure Automation Account (Python 3 Runbook)</td></tr>
+        <tr><td>Scheduler</td><td>Azure Automation Schedule (daily trigger)</td></tr>
+        <tr><td>Authentication</td><td>Azure Service Principal — <code>ClientSecretCredential</code> from <code>azure-identity</code></td></tr>
+        <tr><td>Resource Discovery</td><td>Azure Management SDK — <code>azure-mgmt-network</code>, <code>azure-mgmt-subscription</code></td></tr>
+        <tr><td>Certificate Parsing</td><td>Python <code>cryptography</code> library — PKCS#7, X.509, DER, PEM</td></tr>
+        <tr><td>Email</td><td>Azure Communication Services (ACS) Email — <code>azure-communication-email</code></td></tr>
+        <tr><td>Reporting</td><td><code>openpyxl</code> (Excel .xlsx), HTML (inline email template)</td></tr>
+        <tr><td>Language</td><td>Python 3.8 (Azure Automation runtime)</td></tr>
+      </tbody>
+    </table>
+    <h3>Python Dependencies</h3>
+    <table>
+      <thead><tr><th>Package</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>azure-identity</code></td><td>Service Principal authentication</td></tr>
+        <tr><td><code>azure-mgmt-network</code></td><td>Application Gateway list/get API</td></tr>
+        <tr><td><code>azure-mgmt-subscription</code></td><td>Resolve subscription display names</td></tr>
+        <tr><td><code>azure-communication-email</code></td><td>Send email via ACS</td></tr>
+        <tr><td><code>cryptography</code></td><td>Parse PKCS#7 / X.509 certificate data</td></tr>
+        <tr><td><code>openpyxl</code></td><td>Build Excel .xlsx workbook</td></tr>
+        <tr><td><code>python-dotenv</code></td><td>Load .env for local runs (not required in Automation Account)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 9. CODE STRUCTURE -->
+  <div class="section" id="s9">
+    <div class="sec-header">
+      <div class="sec-num">9</div>
+      <h2>Code Structure</h2>
+    </div>
+    <pre>ssl-certificate-notifier/
+├── main.py                       # Runbook / main script (all logic in one file)
+├── requirements.txt              # Python dependencies
+├── DOCUMENTATION.md              # Full technical documentation
+└── .env                          # Local secrets (never commit — git-ignored)</pre>
+    <h3>main.py — Section Breakdown</h3>
+    <table>
+      <thead><tr><th>Section</th><th>Responsibility</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Section 1 — Configuration</strong></td><td>Resolves all settings from Automation variables, env vars, or defaults. <code>DRY_RUN=true</code> writes outputs to disk without sending email.</td></tr>
+        <tr><td><strong>Section 2 — Certificate Scanning</strong></td><td>Read-only Azure API calls. Lists/gets Application Gateways, parses cert data using 4-stage fallback, builds flat records per certificate.</td></tr>
+        <tr><td><strong>Section 3 — Excel Report</strong></td><td>Builds colour-coded <code>.xlsx</code> workbook using <code>openpyxl</code>. Rows sorted by days remaining (soonest first).</td></tr>
+        <tr><td><strong>Section 4 — HTML Email</strong></td><td>Builds responsive HTML email with metrics card and per-status tables (Expired / Critical / Warning / Unknown).</td></tr>
+        <tr><td><strong>Section 5 — ACS Email</strong></td><td>Sends the HTML email body + Excel attachment via <code>azure-communication-email</code>.</td></tr>
+        <tr><td><strong>Section 6 — Entry Point</strong></td><td><code>main()</code> orchestrates sections 1–5 in sequence.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 10. CONFIGURATION -->
+  <div class="section" id="s10">
+    <div class="sec-header">
+      <div class="sec-num">10</div>
+      <h2>Configuration</h2>
+    </div>
+    <p>Config resolution order for every setting:</p>
+    <ol>
+      <li>Azure Automation variable / credential asset</li>
+      <li>Environment variable (local <code>.env</code> via <code>python-dotenv</code>)</li>
+      <li>Hard-coded default, or <code>sys.exit(1)</code> for required values</li>
+    </ol>
+    <h3>Azure Automation Account Assets</h3>
+    <table>
+      <thead><tr><th>Asset Type</th><th>Name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Credential</td><td><code>AzureSPCredential</code></td><td>Username = Client ID, Password = Client Secret</td></tr>
+        <tr><td>Variable (String)</td><td><code>AZURE_TENANT_ID</code></td><td>Azure AD tenant ID</td></tr>
+        <tr><td>Variable (String)</td><td><code>AG_SUBSCRIPTION_IDS</code></td><td>Comma-separated subscription IDs to scan</td></tr>
+        <tr><td>Variable (String)</td><td><code>AG_ALERT_DAYS</code></td><td>Warning threshold in days before expiry (default: <code>14</code>)</td></tr>
+        <tr><td>Variable (String)</td><td><code>ACS_CONNECTION_STRING</code></td><td>Azure Communication Services connection string</td></tr>
+        <tr><td>Variable (String)</td><td><code>ACS_SENDER_ADDRESS</code></td><td>Verified ACS sender email address</td></tr>
+        <tr><td>Variable (String)</td><td><code>AG_NOTIFICATION_TO</code></td><td>Comma-separated recipient email addresses</td></tr>
+      </tbody>
+    </table>
+    <h3>Local Development (.env file)</h3>
+    <pre>AZURE_CLIENT_ID=&lt;service-principal-client-id&gt;
+AZURE_CLIENT_SECRET=&lt;service-principal-client-secret&gt;
+AZURE_TENANT_ID=&lt;tenant-id&gt;
+AG_SUBSCRIPTION_IDS=&lt;sub-id-1&gt;,&lt;sub-id-2&gt;
+AG_ALERT_DAYS=14
+DRY_RUN=false
+ACS_CONNECTION_STRING=&lt;acs-connection-string&gt;
+ACS_SENDER_ADDRESS=DoNotReply@&lt;domain&gt;.azurecomm.net
+AG_NOTIFICATION_TO=team@example.com</pre>
+    <div class="callout">
+      Set <code>DRY_RUN=true</code> to skip the ACS call and write the Excel and HTML files to disk locally for inspection. No Azure Email resources are consumed in dry-run mode.
+    </div>
+  </div>
+
+  <!-- 11. DEPLOYMENT -->
+  <div class="section" id="s11" style="page-break-before:always;break-before:always;">
+    <div class="sec-header">
+      <div class="sec-num">11</div>
+      <h2>Deployment</h2>
+    </div>
+    <h3>Prerequisites</h3>
+    <ol>
+      <li>An Azure Automation Account with Python 3 runbook support</li>
+      <li>A Service Principal with <code>Reader</code> role on all target subscriptions</li>
+      <li>An Azure Communication Services resource with a verified sender domain</li>
+      <li>Required Python packages installed in the Automation Account</li>
+    </ol>
+    <h3>Step-by-Step Deployment</h3>
+    <table>
+      <thead><tr><th>Step</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1. Install packages</strong></td><td>Upload <code>azure-identity</code>, <code>azure-mgmt-network</code>, <code>azure-mgmt-subscription</code>, <code>azure-communication-email</code>, <code>cryptography</code>, <code>openpyxl</code> to the Automation Account Python 3 packages</td></tr>
+        <tr><td><strong>2. Import runbook</strong></td><td>Upload <code>main.py</code> as a Python 3 runbook in the Automation Account</td></tr>
+        <tr><td><strong>3. Configure assets</strong></td><td>Add all variables and credentials listed in the Configuration section</td></tr>
+        <tr><td><strong>4. Create schedule</strong></td><td>Link a daily schedule to the runbook (recommended: 06:00 UTC)</td></tr>
+        <tr><td><strong>5. Test run</strong></td><td>Trigger the runbook manually from the Azure Portal to validate end-to-end connectivity</td></tr>
+      </tbody>
+    </table>
+    <h3>Local Test Run</h3>
+    <pre>pip install -r requirements.txt
+DRY_RUN=true python main.py       # writes .xlsx + .html to disk, no email sent</pre>
+  </div>
+
+  <!-- 12. IAM & SECURITY -->
+  <div class="section" id="s12">
+    <div class="sec-header">
+      <div class="sec-num">12</div>
+      <h2>IAM &amp; Security Model</h2>
+    </div>
+    <h3>Authentication Layers</h3>
+    <table>
+      <thead><tr><th>Layer</th><th>Identity</th><th>Permissions</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Automation Account</strong></td><td>Managed Identity / Run As</td><td>Access to Automation variables and credentials</td></tr>
+        <tr><td><strong>Application Gateway scanning</strong></td><td>Service Principal (<code>AzureSPCredential</code>)</td><td><code>Reader</code> role on each target subscription</td></tr>
+        <tr><td><strong>Email delivery</strong></td><td>ACS connection string</td><td>Authenticated ACS Email sender permission</td></tr>
+      </tbody>
+    </table>
+    <h3>Required RBAC</h3>
+    <p>The Service Principal requires <strong>Reader</strong> role on each target subscription (or at minimum on resource groups containing Application Gateways). No write permissions are required — the runbook is entirely read-only.</p>
+    <h3>Security Guidelines</h3>
+    <div class="callout amber">
+      <strong>These rules apply to every deployment of this runbook:</strong>
+      <ul style="margin-top:8px;">
+        <li>Store all secrets in <strong>Azure Automation encrypted variables / credentials</strong> — never hardcode in the runbook source</li>
+        <li>The <code>.env</code> file is for local development only — add it to <code>.gitignore</code> and never commit to source control</li>
+        <li>Scope the Service Principal to the <strong>minimum required subscriptions</strong> with <code>Reader</code> role only</li>
+        <li>Rotate the Service Principal client secret on your organisation's standard credential rotation schedule</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 13. EMAIL & EXCEL OUTPUT -->
+  <div class="section" id="s13">
+    <div class="sec-header">
+      <div class="sec-num">13</div>
+      <h2>Email &amp; Excel Output</h2>
+    </div>
+    <h3>HTML Email Structure</h3>
+    <table>
+      <thead><tr><th>Section</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Metrics card</strong></td><td>"At a glance" summary — total certs scanned, alert badge counts per status, report timestamp</td></tr>
+        <tr><td><strong>Expired table</strong></td><td>Top-5 expired certificates (dark red theme)</td></tr>
+        <tr><td><strong>Critical table</strong></td><td>Top-5 certificates expiring within 7 days (orange-red theme)</td></tr>
+        <tr><td><strong>Warning table</strong></td><td>Top-5 certificates expiring within warning threshold (amber theme)</td></tr>
+        <tr><td><strong>Unknown table</strong></td><td>All certificates whose expiry could not be determined</td></tr>
+        <tr><td><strong>Legend + footer</strong></td><td>Status colour legend and automated disclaimer</td></tr>
+      </tbody>
+    </table>
+        <figure style="margin:14px 0;page-break-inside:avoid;break-inside:avoid;">
+      <img src="images\sample-email-1.png" alt="Sample Email Report" class="doc-img" style="margin:0;width:40%;display:block;margin-left:auto;margin-right:auto;"/>
+      <figcaption style="text-align:center;font-size:8.5pt;color:#555;margin-top:5px;font-style:italic;">Figure 1 — Sample HTML Email Report: colour-coded status table with metrics summary card</figcaption>
+    </figure>
+      <figure style="margin:14px 0;page-break-inside:avoid;break-inside:avoid;">
+      <img src="images\sample-email-2.png" alt="Sample Email Report" class="doc-img" style="margin:0;width:40%;display:block;margin-left:auto;margin-right:auto;"/>
+      <figcaption style="text-align:center;font-size:8.5pt;color:#555;margin-top:5px;font-style:italic;">Figure 2 — Sample HTML Email Report: colour-coded status table with metrics summary card</figcaption>
+    </figure>
+    <h3>Excel Attachment Columns</h3>
+    <table>
+      <thead><tr><th>#</th><th>Column</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Gateway Name</td><td>Name of the Application Gateway</td></tr>
+        <tr><td>2</td><td>Location</td><td>Azure region</td></tr>
+        <tr><td>3</td><td>Resource Group</td><td>Resource group containing the gateway</td></tr>
+        <tr><td>4</td><td>Subscription Name</td><td>Resolved subscription display name</td></tr>
+        <tr><td>5</td><td>Subscription ID</td><td>Azure subscription ID</td></tr>
+        <tr><td>6</td><td>Certificate Name</td><td>Name of the SSL certificate resource</td></tr>
+        <tr><td>7</td><td>Listeners</td><td>TLS listeners using this certificate</td></tr>
+        <tr><td>8</td><td>Subject</td><td>Certificate subject (CN)</td></tr>
+        <tr><td>9</td><td>Issuer</td><td>Certificate issuer / CA</td></tr>
+        <tr><td>10</td><td>Expiry Date (UTC)</td><td>Certificate expiry date</td></tr>
+        <tr><td>11</td><td>Days Remaining</td><td>Calendar days until expiry</td></tr>
+        <tr><td>12</td><td>Status</td><td>Expired / Critical / Warning / OK / Unknown</td></tr>
+        <tr><td>13</td><td>Key Vault Ref</td><td>Key Vault URI if certificate is sourced from Key Vault</td></tr>
+      </tbody>
+    </table>
+    <p>All rows are sorted by days remaining (soonest-expiring first). Each row is colour-coded by status: dark red (Expired), orange-red (Critical), amber (Warning), green (OK), grey (Unknown).</p>
+            <figure style="margin:14px 0;page-break-inside:avoid;break-inside:avoid;">
+      <img src="images\sample-report.png" alt="Sample Email Report" class="doc-img" style="margin:0;width:90%;display:block;margin-left:auto;margin-right:auto;"/>
+      <figcaption style="text-align:center;font-size:8.5pt;color:#555;margin-top:5px;font-style:italic;">Figure 3 —  sample excel report</figcaption>
+    </figure>
+  </div>
+
+  <!-- 14. ADVANTAGES -->
+  <div class="section" id="s14" style="page-break-before:always;break-before:always;">
+    <div class="sec-header">
+      <div class="sec-num">14</div>
+      <h2>Advantages</h2>
+    </div>
+    <h3>Proactive Monitoring</h3>
+    <ul>
+      <li><strong>Daily schedule</strong> — catches certificates before they expire, not after outages occur</li>
+      <li><strong>Configurable warning threshold</strong> — adjust lead time to match your team's renewal process</li>
+      <li><strong>Multi-subscription</strong> — single runbook covers the entire Azure estate from one place</li>
+    </ul>
+    <h3>Safety</h3>
+    <ul>
+      <li><strong>Read-only</strong> — zero risk of accidental resource modification under any circumstances</li>
+      <li><strong>Minimal RBAC</strong> — Reader role only; no elevated or write permissions required</li>
+      <li><strong>Dry-run mode</strong> — full local testing without any email or Azure API side effects</li>
+    </ul>
+    <h3>Resilience</h3>
+    <ul>
+      <li><strong>4-stage certificate parsing</strong> — handles all certificate formats Azure may return across different gateway versions and configurations</li>
+      <li><strong>Listener-aware</strong> — only scans certificates actively attached to TLS listeners</li>
+      <li><strong>Unknown classification</strong> — explicitly handles Key Vault-backed certificates rather than silently failing or crashing</li>
+    </ul>
+    <h3>Reporting Quality</h3>
+    <ul>
+      <li><strong>Dual output</strong> — HTML email for at-a-glance visibility, Excel for detailed audit records</li>
+      <li><strong>Colour-coded</strong> — immediate visual prioritisation by severity status</li>
+      <li><strong>Sorted by urgency</strong> — soonest-expiring certificates always appear first in both outputs</li>
+      <li><strong>Compliance-ready</strong> — Excel output suitable as audit evidence for SOC 2, ISO 27001, and similar frameworks</li>
+    </ul>
+  </div>
+
+  <!-- 15. LIMITATIONS -->
+  <div class="section" id="s15">
+    <div class="sec-header">
+      <div class="sec-num">15</div>
+      <h2>Limitations</h2>
+    </div>
+    <table>
+      <thead><tr><th>Limitation</th><th>Impact</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Key Vault-backed certificates</strong></td><td>Azure does not expose <code>publicCertData</code> for Key Vault certs — these appear as "Unknown" and must be monitored via Azure Key Vault expiry alerts</td></tr>
+        <tr><td><strong>No auto-renewal</strong></td><td>Notification only — the runbook does not renew, replace, or rotate any certificate</td></tr>
+        <tr><td><strong>Python 3.8 runtime</strong></td><td>Must remain compatible with the Azure Automation Python 3.8 runtime; some newer library features may require version pinning</td></tr>
+        <tr><td><strong>No historical trend</strong></td><td>Each run is independent; there is no built-in storage of past results or trend data</td></tr>
+        <tr><td><strong>Application Gateway only</strong></td><td>Does not scan certificates on Front Door, API Management, App Service, or other Azure services</td></tr>
+        <tr><td><strong>ACS Email single-region</strong></td><td>The ACS connection string is tied to a specific ACS resource region</td></tr>
+        <tr><td><strong>Top-5 per status in email</strong></td><td>HTML email shows only the top-5 most urgent per status to keep email readable; full data is in the Excel attachment</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 16. USE CASES -->
+  <div class="section" id="s16">
+    <div class="sec-header">
+      <div class="sec-num">16</div>
+      <h2>Use Cases</h2>
+    </div>
+    <ul>
+      <li><strong>Enterprise SSL governance</strong> — enforce certificate visibility across all Application Gateways in an Azure estate from a single automated runbook</li>
+      <li><strong>Proactive incident prevention</strong> — eliminate SSL-related outages caused by unnoticed certificate expiry across multiple subscriptions</li>
+      <li><strong>Compliance requirements</strong> — supports SOC 2, ISO 27001, and other frameworks requiring certificate lifecycle monitoring and audit evidence</li>
+      <li><strong>Multi-subscription Azure environments</strong> — centralised visibility across dev, staging, and production subscriptions without per-subscription tooling</li>
+      <li><strong>Operations team dashboards</strong> — daily email summary gives ops teams immediate visibility without portal access</li>
+    </ul>
+  </div>
+
+  <!-- 17. OPERATIONAL RUNBOOK -->
+  <div class="section" id="s17" style="page-break-before:always;break-before:always;">
+    <div class="sec-header">
+      <div class="sec-num">17</div>
+      <h2>Operational Runbook</h2>
+    </div>
+    <h3>Trigger the Runbook Manually</h3>
+    <p>Navigate to the Automation Account in the Azure Portal → <strong>Runbooks</strong> → select the runbook → <strong>Start</strong>.</p>
+    <h3>Test Locally</h3>
+    <pre>pip install -r requirements.txt
+DRY_RUN=true python main.py   # writes .xlsx + .html to disk, no email sent</pre>
+    <h3>Change the Warning Threshold</h3>
+    <p>Update the <code>AG_ALERT_DAYS</code> variable in the Automation Account. No runbook redeployment is required.</p>
+    <h3>Add a New Subscription</h3>
+    <ol>
+      <li>Add the subscription ID to the <code>AG_SUBSCRIPTION_IDS</code> Automation variable (comma-separated)</li>
+      <li>Grant the Service Principal <code>Reader</code> role on the new subscription</li>
+    </ol>
+    <h3>Add or Change Email Recipients</h3>
+    <p>Update the <code>AG_NOTIFICATION_TO</code> Automation variable. No runbook redeployment is required.</p>
+    <h3>Check Execution History</h3>
+    <p>Navigate to the Automation Account → <strong>Jobs</strong> to view past executions, output logs, and error details.</p>
+    <h3>Common Issues</h3>
+    <table>
+      <thead><tr><th>Symptom</th><th>Likely Cause</th><th>Resolution</th></tr></thead>
+      <tbody>
+        <tr><td>All certificates show as Unknown</td><td>Certificates are Key Vault-backed; <code>publicCertData</code> not available</td><td>Monitor Key Vault-backed certs via Azure Key Vault expiry alerts</td></tr>
+        <tr><td>Authentication error at startup</td><td><code>AzureSPCredential</code> missing or incorrect in Automation Account</td><td>Re-add the credential with correct Client ID and Secret</td></tr>
+        <tr><td>No email received</td><td>ACS connection string or sender address incorrect</td><td>Verify <code>ACS_CONNECTION_STRING</code> and <code>ACS_SENDER_ADDRESS</code> variables; check sender domain verification in ACS</td></tr>
+        <tr><td>Package import errors</td><td>Required Python packages not installed in Automation Account</td><td>Upload all packages from <code>requirements.txt</code> to the Automation Account Python 3 packages</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 18. FINAL OUTCOME -->
+  <div class="section" id="s18">
+    <div class="sec-header">
+      <div class="sec-num">18</div>
+      <h2>Final Outcome</h2>
+    </div>
+    <div class="outcome-card">
+      <h3>This solution delivers a production-grade, enterprise-ready SSL certificate monitoring system</h3>
+      <ul>
+        <li><strong>Proactive expiry monitoring</strong> — daily scheduled scan catches expiring certificates before they cause outages or impact end users</li>
+        <li><strong>Multi-subscription coverage</strong> — single runbook covers all Application Gateways across the entire Azure estate</li>
+        <li><strong>Resilient certificate parsing</strong> — four-stage fallback chain handles every certificate format Azure returns across all gateway versions</li>
+        <li><strong>Enterprise-grade reporting</strong> — colour-coded HTML email + full Excel attachment delivered to stakeholders after every run</li>
+        <li><strong>Read-only safety</strong> — zero risk of resource modification; minimal <code>Reader</code> RBAC permissions required</li>
+        <li><strong>Compliance-ready</strong> — daily Excel audit trail suitable for SOC 2, ISO 27001, and similar governance frameworks</li>
+      </ul>
+    </div>
+    <div class="doc-footer">
+      Azure Application Gateway SSL Certificate Expiry Notification &nbsp;&nbsp;|&nbsp;&nbsp; Movate DevOps Team &nbsp;&nbsp;|&nbsp;&nbsp; 2026 &nbsp;&nbsp;|&nbsp;&nbsp; CONFIDENTIAL
+    </div>
+  </div>
+
+</div><!-- .content -->
+</body>
+</html>
