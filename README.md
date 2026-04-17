@@ -10,7 +10,7 @@
 | Engineer | Shiv Kumar Verma | ShivKumar.Verma@movate.com |
 | DevOps Engineers | Movate DevOps Team | — |
 
-📄 **Full Documentation (PDF):** [ssl-certificate-expiry-notification-documentation.pdf](docs/ssl-certificate-expiry-notification-documentation.pdf)
+📄 **Full Documentation (PDF):** [ssl-certificate-expiry-notification-documentation.pdf](docs\Azure Application Gateway SSL Certificate Expiry Notification.pdf)
 
 ---
 
@@ -101,6 +101,8 @@ An **Azure Automation Python 3 Runbook** executes on a daily schedule to:
 | Service Principal | Identity used by the runbook to read Application Gateway resources |
 | Application Gateways | Target resources — SSL certificate data is read from each gateway |
 | Azure Communication Services | Delivers the HTML email and Excel attachment to recipients |
+
+![flow diagam](docs\images\hld-architecture.png)
 
 ### Architecture Diagram
 
